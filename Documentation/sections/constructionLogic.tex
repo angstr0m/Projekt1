@@ -1,0 +1,43 @@
+\section{Konstruktions Domänen Logik}
+
+\customImage{ConstructionLogic.png}{Die Klassen, die die Kernfunktionalitäten der Domänen-Logik implementieren.}{-}
+
+Die Domänen-Logik implementiert die in der Spezifikation behandelte Bauplan/Baustein/Konstrukt Logik. Bei den SquareBuildingBlock und SquareBlockJoint Klassen handelt es sich um kürzliche Erweiterungen, die nicht Teil der Spezifikation für Projekt 1 sind.\\
+
+Alle Klassen der Domänen Logik erben von der Entity-Klasse. Diese implementiert grundlegende Funktionalitäten, wie wichtige callbacks.\\
+Alle Blöcke, die für die Konstruktion verwendet werden, sind ConstructionEntities. ConstructionEntities haben eine eindeutige ID, eine Position und eine Rotation. Alle aktiven ConstructionEntities werden über den ConstructionEntityManager verwaltet.\\
+BuildingPlans repräsentieren Bauplänen aus der Spezifikation, BuildingBlocks sind Bausteine und das Construct ist das Konstrukt. BlockJoints implementieren die Verbindungsstellen Funktionalität.\\
+Das Construct besteht aus BuildingBlocks. Jeder BuildingBlock besitzt eine Menge von BlockJoints.\\
+BuildingPlans instantiieren neue BuildingBlock Instanzen und fügen diese dem Construct hinzu. Der neue BuildingBlock wird dabei dem nächsten BuildingBlock des Constructs angefügt.  
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Die Domänen Logik implementiert die in der Spezifikation geforderten Anforderungen.
+
+\subsection{Transparente Verteilung der Domänen Logik}
+
+Obwohl die Komponenten des Systems derzeit nicht verteilt sind, ist die Domänen Logik bereits auf eine spätere Verteilung vorbereitet. Im folgenden werden die Konzepte erläutert, die eine nachträgliche transparente Verteilung möglich machen.\\
+Jede Zustandsänderung des Systems, durch externe Einflüsse (wie bspw. Benutzer Befehle), erfolgt über Nachrichten. Das Nachrichtensystem abstrahiert dabei den Versand und Empfang von Netzwerk-Nachrichten. Die Domänen Logik muss kein Wissen über die Verteilung des Systems haben, weil auf diesem Abstraktions-Level nicht zwischen lokalen und Netzwerk-Nachrichten unterschieden wird. Die Verteilung ist für die Domänen Logik transparent. Um Latenzprobleme zu vermeiden, wird auf allen verteilten Komponenten dieselbe Implementation für die Simulation der virtuelle Welt ausgeführt.\\
+Ein autorativer Server verarbeitet die Auswirkungen der Netzwerk-Nachrichten der Clients auf die Simulation und schickt das Ergebnis an alle Clients zurück. Bei einem Konflikt zwischen den Simulationsergebnissen des Clients und des Servers gewinnt der Server. Da die ausgeführte Simulation nicht unbedingt deterministisch sein muss, kann dies öfter vorkommen (bspw. Physik-Simulation). Damit ist ein konsistenter Zustand auf allen verteilten Komponenten sichergestellt. Typische Probleme, wie die Ordnung über (für das System) nicht kausal abhängiger Nachrichten, können damit gelöst werden.
+
+\subsubsection{Verarbeitung, Validierung, Konflikterkennung und Ausführung von Benutzer-Aktionen}
+
+\customImage{ActionLogic.png}{Implementation der Kernfunktionalität zur Validierung, Konflikterkennung und Ausführung von Benutzer-Aktionen.}{-}
+
+Bei Benutzeraktionen handelt es sich um alle Aktionen, die von einem Benutzer im Rahmen der Domänen-Logik ausgeführt werden können. Ein Beispiel ist das Bewegen eines Bauplans. Benutzeraktionen werden nicht direkt ausgeführt, sondern beim lokalen ActionRequester beantragt. Dieser entscheidet, ob die lokale Komponente die nötigen Rechte hat, um diese Aktion auszuführen. Sind die nötigen Berechtigungen vorhanden, wird die Anfrage sofort an den ActionExecutor übergeben, sonst muss die Anfrage an die entsprechende Autorität (bspw. den Server, falls es sich um einen Client handelt) weitergeleitet werden.\\
+Im ActionExecutor wird geprüft, ob die Aktion in der Anfrage im derzeitigen Zustand der Simulation ausgeführt werden kann und darf. Ist die Aktion valide, wird diese ausgeführt, ansonsten verworfen. Dies verhindert, dass die Simulation durch eine (vielleicht böswillige) Benutzer-Aktion in einen inkonsistenten Zustand gebracht wird.\\
+Die Implementation der Ausführung der Aktion und der Validierung der Aktion ist in der entsprechenden Klasse der Aktion hinterlegt und ändert sich zur runtime nicht. Weitere Aktionen können bequem durch die Implementierung des IBeardAction interfaces hinzugefügt werden.
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Momentan arbeitet das System nur mit lokalen Versionen der Action Requester und Executor Klassen. Diese müssen für eine Verteilung durch die Netzwerk-fähigen Versionen dieser Klassen ausgetauscht werden. Diese übernehmen den Versand und Empfang von Aktionen über das Netzwerk.
+
+\subsection{Anbindung an die Nachbarsysteme}
+
+Die Anbindung an die Nachbarsysteme der Objekt- und Gestenerkennung erfolgt über Adapter, die von den Spezifika Kommunikation mit diesen Nachbarsystemen abstrahieren. Für eine weitergehende Beschreibung dieser Nachbarsysteme möchte ich auf die Projekt 1 Dokumentation von Christian Blank verweisen.
+
+\customImage{NeighbourSystemAdapters.png}{Anbindung an die Nachbarsysteme der Gesten- und Objekterkennung.}{-}
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Die Adapter verfügen momentan noch nicht über Netzwerk-Funktionalität. Alle Systeme laufen lokal auf einem Computer. Die Adapter kommunizieren mit den Nachbarsystemen (die momentan noch prototypisch in C\# implementiert sind) direkt über ein shared-memory.

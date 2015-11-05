@@ -1,0 +1,89 @@
+\section{Spezifikation}
+
+\subsection{Kurzbeschreibung}
+
+Es handelt sich um eine mixed reality Anwendung zur verteilten kollabortativen Konstruktion von virtuellen Objekten. Das konstruierte virtuelle Objekt (Konstrukt) setzt sich aus einer Menge von fertigen 3D-Modellen (Bausteine) zusammen. Jeder Baustein besitzt dabei definierte Verbindungsstellen, an denen andere Bausteine angefügt werden können.
+
+Der Benutzer steuert das System über Gesten und physische Objekte (Bauplan). Jedes physische Objekt repräsentiert einen virtuellen Baustein. Der Benutzer fügt dem Konstrukt neue Bausteine hinzu, indem er den gewünschten Bauplan aufnimmt, an die gewünschte Position hält und die Hinzufügen-Geste ausführt.
+Das System bestimmt, welche Verbindungsstelle des Bausteins welcher Verbindungsstelle des Konstrukts am nächsten ist. Das System erzeugt eine neue Instanz des Bausteins. Das System verschiebt und rotiert diese neue Instanz so, dass die Verbindungsstellen aufeinander liegen und alle Anforderungen einer validen Verbindung erfüllen. Nachdem der Baustein an der richtigen Position ist, wird dieser dem Konstrukt hinzugefügt.
+
+\subsection{Anforderungen}
+
+\begin{enumerate}
+	\item Das System bildet eine Menge von Bauplänen auf eine Menge von Bausteinen ab. Es handelt sich um eine Äquivalenzrelation (1:1).
+	\item Das System erkennt die Position und Rotation aller Baupläne im Erfassungsbereich der Sensorik.
+	\item Das System zeigt die Bausteine über den erkannten Bauplänen an.
+	\item Das System aktualisiert die Position eines Bausteins, wenn sich die Position des zugehörigen Bauplans ändert.
+	\item Das System erkennt, welchen Bauplan der Benutzer in der Hand hält.
+	\item Die Rotation eines Bausteins passt sich der Rotation des zugehörigen Bauplans an.
+	\item Das System bestimmt die nächstgelegenen Schnittstellen zwischen einem nicht verbundenen Baustein und dem Konstrukt.
+	\item Das System bewegt und rotiert einen Baustein relativ zu einer Schnittstelle des Bausteins so, dass sich dieser den spezifischen Anforderungen einer ausgewählten Schnittstelle des Konstrukts anpasst.
+	\item Das System instantiiert neue Bauteile.
+	\item Das System fügt dem Konstrukt neue, dem Konstrukt neue Bauteil Instanzen hinzu.
+	\item Der Benutzer fügt dem Konstrukt Bauteile hinzu (vgl. Glossareinträge \ref{def:Baustein} und \ref{def:Bauplan}).
+	\item Das System sorgt beim Hinzufügen von Bauteilen dafür, dass nur valide Verbindungen entstehen.
+	\item Das System bildet IDs von Bauplänen auf 3D-Modelle ab.
+\end{enumerate}
+
+\subsection{Auschlüsse und Abgrenzungen}
+
+\begin{enumerate}
+	\item Es gibt zu jeder Zeit genau ein Konstrukt. Mehrere Konstrukte werden nicht unterstützt.
+	\item Eine Modifizierung der 3D-Modelle der Bausteine wird vom System nicht unterstützt.
+	\item Die IDs aller Baupläne und deren zugehöriger Bauplan müssen zur compile-time bekannt sein. Ein Hinzufügen von neuen mappings von Bauplänen zu Bausteinen zur runtime wird nicht unterstützt.
+	\item Sensorik:
+		\begin{enumerate}
+			\item Das System greift nicht direkt auf Sensoren zu. Alle Sensordaten, wie beispielsweise erkannte Gesten, werden aufbereitet aus Nachbarsystemen abgerufen.
+		\end{enumerate}		
+	\item Gestenerkennung:
+		\begin{enumerate}
+			\item Die Erkennung von Gesten erfolgt durch ein Nachbarsystem, welches von Christian Blank implementiert wird.
+		\end{enumerate}
+	\item Erkennung der Baupläne:
+		\begin{enumerate}
+			\item Die Erkennung von Bauplänen im Erfassungsbereich der Sensoren erfolgt über ein Nachbarsystem, welches von Christian Blank implementiert wird.
+		\end{enumerate} 
+\end{enumerate}
+
+Folgende Ausschlüsse und Abgrenzungen besitzen nur für Projekt 1 Gültigkeit:
+
+\begin{enumerate}
+	\item (Projekt 1) Das System ist nicht verteilt. Alle Komponenten des Systems laufen also lokal auf einem Computer.
+	\item (Projekt 1) Das System unterstützt maximal einen Benutzer. Das System ist in dieser Ausbaustufe also (noch) nicht kollaborativ.
+	\item (Projekt 1) Die Ausgabe erfolgt auf einem Bildschirm/Fernseher, nicht auf einer 3D-Brille.
+\end{enumerate}
+
+\subsection{Zukünftige Erweiterungen}
+
+\begin{enumerate}
+	\item Die Komponenten des Systems laufen verteilt auf mehreren Rechnern im LAN, WAN und/oder Internet.
+	\item Das System unterstützt mehrere Benutzer. Die Benutzer können dabei an einem lokalen System, verteilt an unterschiedlichen Standorten oder einer beliebigen Kombination, zwischen diesen beiden extremen arbeiten.
+	\item Die Komponenten des Systems sind in unterschiedlichen Programmiersprachen implementiert. Die Kommunikation zwischen den Komponenten erfolgt dabei über das Netzwerk. Nach aktuellem Stand sind folgende Programmiersprachen in Verwendung oder für eine zukünftige Verwendung vorgesehen: Java, C\#, C++, Ruby.
+\end{enumerate}
+
+\subsection{Glossar}
+
+\begin{enumerate}
+	\item Anwendung/System - Die Implementierung, die im Rahmen des Master-Studiums erstellt werden soll.
+	\item Konstrukt - Das Konstrukt ist ein virtuelles Objekt, das sich aus einer Menge von Bausteinen zusammen setzt. Ein Baustein kann an einer Verbindungsstelle an das Konstrukt angeschlossen werden. Damit wird dieser Baustein dann ein Teil des Konstrukts.
+	\item \label{def:Baustein} Baustein - Ein virtuelles Objekt, welches dem Konstrukt hinzugefügt werden kann. Ein Baustein bietet, je nach Art, verschiedene Funktionalitäten an. Jeder Baustein stellt aber folgende Funktionalitäten bereit:
+		\begin{enumerate}
+			\item Der Baustein wird durch ein oder mehrere 3D-Modelle repräsentiert.
+			\item Der Baustein besitzt Verbindungsstellen, an die andere Bausteine angeschlossen werden können sobald dieser Baustein Teil des Konstruktes ist.
+		\end{enumerate}
+	\item \label{def:Bauplan} Bauplan - Ein physisches Objekt, welches vom Benutzer als Werkzeug für die Konstruktion verwendet wird. Dieses repräsentiert einen virtuellen Baustein.
+	\item Verbindungsstelle - Eine definierte Schnittstelle, an der zwei Bausteine miteinander verbunden werden können. Eine Verbindung zwischen Baustein und konstrukt ist nur an Verbindungsstellen möglich. Jeder Verbindungsstelle hat spezifische Anforderungen an die Position und Rotation des verbundenen Bausteins.
+	\item valide Verbindung - Jede Verbindungsstelle hat spezifische Anforderungen an die Position und Rotation eines verbundenen Bausteins. Sind diese Bedingungen erfüllt, handelt es sich um eine valide Verbindung.
+	\item Hinzufügen-Geste - Eine Geste die vom Benutzer ausgeführt wird, um das Hinzufügen eines neuen Bausteins zum Konstrukt zu bestätigen.
+	\item Sensorik - Die Gesamtheit aller Sensoren, auf die die Sensor-Nachbarsysteme Zugriff haben.
+	\item Sensor-Nachbarsystem - Nachbarsysteme, die die Daten der Sensoren für dieses System aufbereiten und abstrahieren.
+	\item Ausgabe/Ausgabegerät - Das Gerät, auf dem die Ausgabe der Visualisierung für den Benutzer erfolgt. Es kann sich in unserem Fall um eine AR-Brille, einen handelsüblichen Monitor oder einen 3D-Fernseher handeln.
+\end{enumerate}
+
+\subsection{Konventionen}
+
+\begin{enumerate}
+	\item Der C\# Source-Code folgt den StyleCop\footnote{\url{http://stylecop.codeplex.com/}} Konventionen. Hierbei handelt es sich um die von Microsoft empfohlenen Konventionen für die Formatierung und Dokumentation von C\# Source-Code.
+	\item Als IDE für C\# und C++ wird eine nicht Express Version von Visual-Studio in der jeweils neusten Version verwendet (zur Zeit Visual-Studio 2013).
+	\item Der Komponentenentwurf orientiert sich an dem Quasar-Standard von sd\&m\footnote{\url{https://www.fbi.h-da.de/fileadmin/personal/b.humm/Publikationen/Siedersleben\_-\_Quasar\_1\_\_sd\_m\_Brosch\_re\_.pdf}}. Eine Ausnahme bildet die Implementation in Unity. Aufgrund der besonderen technischen Gegebenheiten, hat sich die Verwendung des Singelton-Patterns für die System-Komponenten als vorteilhafter herausgestellt.
+\end{enumerate}

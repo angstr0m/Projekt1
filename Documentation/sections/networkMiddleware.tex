@@ -1,0 +1,35 @@
+\section{Netzwerk Middleware}
+
+\subsection{Netzwerk-Adapter (C\#)}
+
+\customImage{iNetworkAdapter.png}{Interface des Netzwerk-Adapters.}{-}
+
+Für die Kommunikation zwischen den verteilten Komponenten des Systems haben wir uns für einen Nachrichten-basierten Ansatz entschieden. Jede Nachricht enthält dabei alle notwendigen zur Verarbeitung notwendigen Informationen und ist nicht von anderen Nachrichten abhängig.\\
+Die Implementation der Netzwerk-Kommunikation erfolgt dabei über einen Adapter, der von der komplexen Netzwerk-Kommunikation abstrahiert. Der Netzwerkadapter unterstützt TCP-IP v4 und v6 sowie UDP. Im Normalfall werden Nachrichten verschickt, die keine Antwort benötigen. Der Netzwerkadapter unterstützt aber auch den Versand von Nachrichten, bei denen eine Antwort benötigt wird. Der Versand erfolgt dabei asynchron. Der Sender wird benachrichtigt, sobald eine Antwort eingetroffen ist. Wenn während der Verarbeitung einer solchen Nachricht ein Fehler auftritt, wird der Sender über eine entsprechende Fehlernachricht (die eine Beschreibung des Fehlers enthält) informiert.\\
+Da wir unterschiedliche Programmiersprachen verwenden, muss für jede Programmiersprache ein eigener Netzwerk-Adapter implementiert werden. Wir haben uns darauf geeinigt, die C\# Implementation als Referenz für die anderen Implementationen zu verwenden.\\ 
+
+\customImage{NetworkAdapterOverview_0.png}{Übersicht der Klassen des Netzwerk-Adapters (1/2).}{-}
+\customImage{NetworkAdapterOverview_1.png}{Übersicht der Klassen des Netzwerk-Adapters (2/2).}{-}
+
+Für die Serialisierung der Nachrichten wird Google Protobuf\footnote{\url{https://code.google.com/p/protobuf/}} verwendet. Protobuf erlaubt die programmiersprachen-unabhängige Serialisierung von Objekten. Google selbst bietet Referenz-Implementationen des Protobuf-Protokolls für C++, Java und Phython an. Mehrere Open-Source Projekte stellen Implementationen für zahlreiche andere Programmiersprachen bereit\footnote{\url{https://code.google.com/p/protobuf/wiki/ThirdPartyAddOns}}. Unter anderem C\# und Ruby. Alle diese Implementationen erfüllen das Protobuf Protokoll. Einige dieser Implementationen erweitern den Protobuf-Standard durch eigene Funktionalitäten\footnote{Beispiel für die Erweiterung des Protobuf-Standards in Protobuf Net: \url{https://code.google.com/p/protobuf-net/wiki/Extensions}}. Um die Kompatibilität zwischen unseren Netzwerk-Adapter Implementationen nicht zu gefährden, benutzen wir nur Funktionalitäten der Basis Protobuf Definition von Google.\\
+Ein weiterer Vorteil von Protobuf ist die kompakte Serialisierung der Daten in einem Binär-Format. Eine Nachricht ist, anders als in bspw. XML, nicht mehr von einem Menschen lesbar. Die Größe der serialisierten Nachricht ist aber deutlich geringer als bei diesem Verfahren\footnote{siehe Abschnitt: "Why not just use XML?"\\ \url{https://developers.google.com/protocol-buffers/docs/overview}}. Dies ist für die Netzwerk-Übertragung ein entscheidender Vorteil.\\
+Nachrichten sind in Protobuf nicht selbst identifizierend. Das bedeutet, dass eine ankommende Nachricht nicht deserialisiert werden kann, wenn deren Typ nicht bekannt ist. Im Rahmen von Projekt 1 haben wir ein Protokoll entwickelt, welches dieses Problem löst. Nachrichtentypen müssen beim Sender und Empfänger unter der gleichen ID registriert werden. Dies haben wir durch identische Konfigurationsdateien gelöst. Die Definition der Nachricht muss ebenfalls auf beiden Seiten gleich sein. Unsere Lösung für dieses Problem findet sich im Abschnitt \ref{subsec:ProtobufDefinitionGeneration}. Grundsätzlich versuchen wir die Größe der übertragenen Daten möglichst zu minimieren. Dadurch, dass zur compile-time viel Wissen über die Kommunikation vorhanden ist, müssen wir dies nicht mehr mit den Nachrichten mitschicken. Der offensichtliche Nachteil dieses Verfahrens ist, dass sichergestellt werden muss, dass dieses Wissen auf beiden Seiten identisch ist.
+
+\subsection{Generierung der Protobuf Nachrichten-Definitionen}
+\label{subsec:ProtobufDefinitionGeneration}
+
+Google Protobuf verwendet für die Definition einer Nachricht ein programmiersprachen unabhängiges Format\footnote{\url{https://developers.google.com/protocol-buffers/docs/proto}}. Aus dieser Definition kann der Source-Code für unterschiedliche Programmiersprachen generiert werden. An dieser Stelle möchte ich auf die Projekt 1 Dokumentation von Christian Blank verweisen, der ein Tool\footnote{\url{https://github.com/1blankz7/protobuf-guy}} implementiert hat, das automatisiert aus einer Nachrichten-Definition den Source-Code für alle von uns verwendeten Sprachen generiert.
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Die C\# Implementation des Netzwerk-Adapters ist abgeschlossen. Iwer Petersen arbeitet an der Implementierung des Netzwerk-Adapters für C++. Eine Funktionalität zur Validierung der Gleichheit der Nachrichten-Definitionen auf beiden Seiten wäre wünschenswert. Dies wird aber erst zu einem Problem werden, wenn die Anwendung im großen Maßstab verteilt wird. Momentan lässt sich diese Gleichheit durch organisatorische Maßnahmen sicherstellen.
+
+\subsection{SOA}
+
+\customImage{ServiceRegistryOverview.png}{Übersicht der Klassen der Service Registry.}{-}
+
+Um eine möglichst geringe Kopplung zwischen den verteilten Komponenten zu erreichen, haben wir uns für einen Service Oriented Architecture Ansatz entschieden. Verteilte Komponenten registrieren an einer zentralen Stelle (der Service Registry) die Services, welche sie anbieten. Andere Komponenten können damit herausfinden, unter welcher Adresse und Port ein entsprechender Service verfügbar ist und diesen nutzen.
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Die derzeitige Implementierung der SOA Service Registry ist relativ rudimentär. Es wird nicht über eine keep-alive Funktionalität geprüft, ob die eingetragenen Services noch verfügbar sind. Ebenfalls erfolgt keine Art von Lastverteilung. 

@@ -1,0 +1,9 @@
+\section{Logging-Adapter}
+
+\customImage{LoggerOverview.png}{Übersicht der Klassen des Logging Adapters.}{-}
+
+Der Logging-Adapter bietet Funktionalitäten für das Loggen von Nachrichten aller Art für alle Komponenten. Die derzeitige Implementierung enthält relativ simple thread-safe Konsolen-Logger. Die Idee ist es, das Logging der Komponenten möglichst unabhängig von einer bestimmten Logging Implementation zu machen\footnote{bspw. Apache log4net \url{http://logging.apache.org/log4net/}}. Das Logging soll dabei ohne Konfiguration durch das System ''out of the box'' funktionieren. Alle nötigen Initialisierungsschritte werden durch den Logging-Adapter durchgeführt. 
+
+\subsubsection{Noch nicht implementierte Funktionalitäten}
+
+Die Implementierung des Loggings ist momentan sehr rudimentär gelöst. Für die Zukunft ist eine Anbindung an vollwertige Logging-Frameworks (wie bspw. log4net\footnote{\url{http://logging.apache.org/log4net/}}) geplant.
